@@ -1,17 +1,20 @@
 export class Encoder{
     key: string;
+    seed: number;
     method: string;
     a_code="a".charCodeAt(0)
     A_code="A".charCodeAt(0)
     z_code="z".charCodeAt(0)
-    constructor(key="a", method="vigenere"){
+    constructor(key="a", method="vigenere",seed=0){
         key=key.toLowerCase()
         this.key=key
         this.method=method
+        this.seed=seed
     }
     Encrypt(text:string):string{
         if (this.method=="gamm"){
             this.key=this.Generate(text.length)
+
         }
         let res=""
         const text_c=text
@@ -28,6 +31,9 @@ export class Encoder{
         return this.ToUpper(res,text_c)
     }
     Decode(text: string):string{
+        if (this.method=="gamm"){
+            this.key=this.Generate(text.length,this.seed)
+        }
         let res=""
         const text_c=text
         text=text.toLowerCase()
@@ -57,13 +63,20 @@ export class Encoder{
         }
         return res
     } 
-    private Generate(length:number):string{
-       const rng = new Lcg32();
-       let res=""
-       for (let i = 0; i < length; i++) {
-        res+=String.fromCharCode(rng.nextRangeInt(this.a_code,this.z_code))
-       }
-       return res
+    private Generate(length:number,seed=0):string{
+        let rng;
+        if (seed!=0){
+            rng = new Lcg32(seed);
+        }
+        else{
+            rng = new Lcg32();
+            this.seed=rng.getSeed();
+        }
+        let res=""
+        for (let i = 0; i < length; i++) {
+            res+=String.fromCharCode(rng.nextRangeInt(this.a_code,this.z_code))
+        }
+        return res
     }
 }
 
@@ -72,6 +85,10 @@ class Lcg32 {
 
   constructor(seed: number = Date.now()) {
     this.state = seed >>> 0;
+  }
+
+  getSeed(): number{
+    return this.state
   }
 
   nextUint32(): number {

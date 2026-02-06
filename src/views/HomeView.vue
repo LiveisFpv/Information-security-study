@@ -10,6 +10,7 @@ const method = ref<Method>("vigenere")
 
 const inText = ref("")
 const keyText = ref("")
+const seedText = ref(0)
 const inFile = ref<File | null>(null)
 
 const errors = ref<string[]>([])
@@ -42,7 +43,7 @@ function resetOutput() {
 
 function validate(): boolean {
   errors.value = []
-
+  if (method.value=="gamm"&&mode.value=="decode"&&seedText.value<0) errors.value.push("Введите ключ.")
   if (method.value!="gamm" && !keyText.value.trim()) errors.value.push("Введите ключ.")
   if (!hasText.value && !hasFile.value) {
     errors.value.push("Введите текст или прикрепите файл .txt.")
@@ -75,7 +76,7 @@ async function runCipher() {
   resetOutput()
   if (!validate()) return
 
-  const enc = new Encoder(keyText.value, method.value)
+  const enc = new Encoder(keyText.value, method.value, seedText.value)
 
   if (inFile.value) {
     const originalName = inFile.value.name.replace(/\.txt$/i, "")
@@ -89,7 +90,7 @@ async function runCipher() {
     const processed =
       mode.value === "encode" ? enc.Encrypt(content) : enc.Decode(content)
     if (mode.value === "encode"){
-      keyText.value=enc.key
+      seedText.value=enc.seed
     }
     const blob = new Blob([processed], { type: "text/plain;charset=utf-8" })
     downloadUrl.value = URL.createObjectURL(blob)
@@ -100,7 +101,7 @@ async function runCipher() {
   resultText.value =
     mode.value === "encode" ? enc.Encrypt(inText.value) : enc.Decode(inText.value)
   if (mode.value === "encode"){
-      keyText.value=enc.key
+      seedText.value=enc.seed
   }
   showOutput.value = true
 }
@@ -167,21 +168,21 @@ onBeforeUnmount(() => {
       </template>
       <template v-if="method==='gamm' && mode === 'encode' && showOutput">
         <label for="key_text">Ключ</label>
-        <textarea
+        <input
           id="key_text"
-          type="text"
+          type="number"
           class="input_text"
-          v-model="keyText"
+          v-model="seedText"
           @input="resetOutput"
         />
       </template>
       <template v-if="method==='gamm' && mode === 'decode'">
         <label for="key_text">Ключ</label>
-        <textarea
+        <input
           id="key_text"
-          type="text"
+          type="number"
           class="input_text"
-          v-model="keyText"
+          v-model="seedText"
           @input="resetOutput"
         />
       </template>
