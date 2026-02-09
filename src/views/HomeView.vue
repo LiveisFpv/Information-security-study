@@ -154,7 +154,7 @@ onBeforeUnmount(() => {
 
       <input type="file" name="in_file" accept=".txt,text/plain" @change="onFileChange" />
 
-      
+
       <template v-if="method==='vigenere'">
         <label for="key_text">Ключ</label>
         <input
@@ -209,9 +209,23 @@ onBeforeUnmount(() => {
       </template>
     </div>
   </div>
+  <footer>
+    <p>Генератор пропускает все неподдерживаемые символы</p>
+    <p>Поддерживает только английский алфавит</p>
+  </footer>
 </template>
 
 <style scoped>
+
+footer{
+  width: 100%;
+  position: absolute;
+  bottom: 15px;
+  margin-top: auto;
+  text-align: center;
+  opacity: 0.8;
+}
+
 .nav{
   width: 100%;
   display: flex;

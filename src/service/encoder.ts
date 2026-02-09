@@ -7,14 +7,23 @@ export class Encoder{
     z_code="z".charCodeAt(0)
     constructor(key="a", method="vigenere",seed=0){
         key=key.toLowerCase()
-        this.key=key
+        this.key=this.Delete_unsupported(key)
         this.method=method
         this.seed=seed
+    }
+    private Delete_unsupported(key:string):string{
+      key=key.toLowerCase()
+      let s_key="";
+      for(let i=0;i<key.length;i++){
+        if (key.charCodeAt(i)>=this.a_code && key.charCodeAt(i)<=this.z_code){
+          s_key+=key[i]
+        }
+      }
+      return s_key
     }
     Encrypt(text:string):string{
         if (this.method=="gamm"){
             this.key=this.Generate(text.length)
-
         }
         let res=""
         const text_c=text
@@ -62,7 +71,7 @@ export class Encoder{
             res+=s
         }
         return res
-    } 
+    }
     private Generate(length:number,seed=0):string{
         let rng;
         if (seed!=0){
@@ -102,8 +111,8 @@ class Lcg32 {
     }
 
     const max = maxExclusive >>> 0;
-    const range = 0x1_0000_0000; 
-    const limit = range - (range % max); 
+    const range = 0x1_0000_0000;
+    const limit = range - (range % max);
 
     let x: number;
     do {
