@@ -24,6 +24,7 @@ export class Encoder{
     Encrypt(text:string):string{
         if (this.method=="gamm"){
             this.key=this.Generate(text.length)
+            console.log(this.key)
         }
         let res=""
         const text_c=text
@@ -31,7 +32,7 @@ export class Encoder{
         for (let i = 0; i < text.length; i++) {
             if (text.charCodeAt(i)>=this.a_code && text.charCodeAt(i)<=this.z_code){
                 res+=String.fromCharCode((text.charCodeAt(i)+this.key.charCodeAt(i%this.key.length)-2*this.a_code)%(this.z_code-this.a_code+1)+this.a_code)
-                console.log(text.charCodeAt(i),this.key.charCodeAt(i%this.key.length),(text.charCodeAt(i)+this.key.charCodeAt(i%this.key.length))%(this.z_code-this.a_code+1)+this.a_code)
+                // console.log(text.charCodeAt(i),this.key.charCodeAt(i%this.key.length),(text.charCodeAt(i)+this.key.charCodeAt(i%this.key.length))%(this.z_code-this.a_code+1)+this.a_code)
             }
             else{
             res+=text[i]
@@ -42,6 +43,7 @@ export class Encoder{
     Decode(text: string):string{
         if (this.method=="gamm"){
             this.key=this.Generate(text.length,this.seed)
+            console.log(this.key)
         }
         let res=""
         const text_c=text
