@@ -1,6 +1,6 @@
+import { BinaryUtils, type BitArray } from "./utils";
+
 type DesMode = "ecb";
-type Bit = 0 | 1;
-type BitArray = Bit[];
 
 const BLOCK_SIZE_BYTES = 8;
 
@@ -116,122 +116,6 @@ const S_BOX = [
     [2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11],
   ],
 ];
-
-class BinaryUtils {
-  static byteToBits(byte: number): BitArray {
-    const bits: BitArray = [];
-    for (let i = 7; i >= 0; i--) {
-      bits.push(((byte >> i) & 1) as Bit);
-    }
-    return bits;
-  }
-
-  static bitsToByte(bits: BitArray): number {
-    let value = 0;
-    for (const bit of bits) {
-      value = (value << 1) | bit;
-    }
-    return value;
-  }
-
-  static bytesToBits(bytes: Uint8Array): BitArray {
-    const bits: BitArray = [];
-    for (const byte of bytes) {
-      bits.push(...BinaryUtils.byteToBits(byte));
-    }
-    return bits;
-  }
-
-  static bitsToBytes(bits: BitArray): Uint8Array {
-    if (bits.length % 8 !== 0) {
-      throw new Error("Bit length must be multiple of 8.");
-    }
-    const bytes = new Uint8Array(bits.length / 8);
-    for (let i = 0; i < bytes.length; i++) {
-      const chunk = bits.slice(i * 8, i * 8 + 8);
-      bytes[i] = BinaryUtils.bitsToByte(chunk);
-    }
-    return bytes;
-  }
-
-  static permute(bits: BitArray, table: readonly number[]): BitArray {
-    const output: BitArray = [];
-    for (const position of table) {
-      const bit = bits[position - 1];
-      if (bit === undefined) throw new Error("Permutation index out of range.");
-      output.push(bit);
-    }
-    return output;
-  }
-
-  static xor(a: BitArray, b: BitArray): BitArray {
-    if (a.length !== b.length) throw new Error("XOR arrays must have the same length.");
-    const output: BitArray = [];
-    for (let i = 0; i < a.length; i++) {
-      const left = a[i];
-      const right = b[i];
-      if (left === undefined || right === undefined) throw new Error("XOR index error.");
-      output.push((left ^ right) as Bit);
-    }
-    return output;
-  }
-
-  static leftRotate(bits: BitArray, shift: number): BitArray {
-    if (bits.length === 0) return [];
-    const offset = shift % bits.length;
-    return bits.slice(offset).concat(bits.slice(0, offset));
-  }
-
-  static numberToBits(value: number, bitLength: number): BitArray {
-    const bits: BitArray = [];
-    for (let i = bitLength - 1; i >= 0; i--) {
-      bits.push(((value >> i) & 1) as Bit);
-    }
-    return bits;
-  }
-
-  static bytesToHex(bytes: Uint8Array): string {
-    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
-  }
-
-  static hexToBytes(hexText: string): Uint8Array {
-    const clean = hexText.replace(/\s+/g, "");
-    if (!/^[0-9A-Fa-f]*$/.test(clean) || clean.length % 2 !== 0) {
-      throw new Error("Cipher text must contain only HEX symbols.");
-    }
-    const output = new Uint8Array(clean.length / 2);
-    for (let i = 0; i < output.length; i++) {
-      output[i] = Number.parseInt(clean.slice(i * 2, i * 2 + 2), 16);
-    }
-    return output;
-  }
-
-  static padPkcs7(data: Uint8Array, blockSize: number): Uint8Array {
-    const remainder = data.length % blockSize;
-    const padValue = remainder === 0 ? blockSize : blockSize - remainder;
-    const out = new Uint8Array(data.length + padValue);
-    out.set(data, 0);
-    out.fill(padValue, data.length);
-    return out;
-  }
-
-  static unpadPkcs7(data: Uint8Array, blockSize: number): Uint8Array {
-    if (data.length === 0 || data.length % blockSize !== 0) {
-      throw new Error("Invalid decrypted data length.");
-    }
-    const padValue = data[data.length - 1];
-    if (padValue === undefined || padValue < 1 || padValue > blockSize) {
-      throw new Error("Invalid PKCS#7 padding.");
-    }
-    for (let i = data.length - padValue; i < data.length; i++) {
-      const current = data[i];
-      if (current === undefined || current !== padValue) {
-        throw new Error("Corrupted PKCS#7 padding.");
-      }
-    }
-    return data.slice(0, data.length - padValue);
-  }
-}
 
 export class DES {
   private readonly encoder = new TextEncoder();
