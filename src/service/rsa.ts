@@ -1,16 +1,55 @@
+interface ExtendedGCDResult {
+  gcd: bigint;
+  x: bigint;
+  y: bigint;
+}
+interface Key{
+  key: bigint
+  n: bigint
+}
+interface Keys{
+  openkey:Key
+  closekey:Key
+}
+function extendedGCD(a: bigint, b: bigint): ExtendedGCDResult {
+  if (b === BigInt(0)) {
+    return { gcd: a, x: BigInt(1), y: BigInt(0) };
+  }
+  const { gcd, x, y } = extendedGCD(b, a % b);
+  return {
+    gcd: gcd,
+    x: y,
+    y: x - BigInt(a / b) * y
+  };
+}
 export class RSA {
-    private open_key;
-    private private_key;
-    static generate_keys(key_len: number){
+    static generate_keys(key_len: number):Keys{
         const p = PrimeNum.generatePrime(key_len);
         let q = PrimeNum.generatePrime(key_len);
         while (q === p){
             q = PrimeNum.generatePrime(key_len);
         }
         const n = p*q;
+        const f_e=(p-BigInt(1))*(q-BigInt(1))
+        const e = PrimeNum.generateFermPrime(f_e)
+        const res = extendedGCD(e,f_e)
+        const d=res.x
         console.log(`p = ${p}`);
         console.log(`q = ${q}`);
-        console.log(`n = ${n}`)
+        console.log(`n = ${n}`);
+        console.log(`f_e = ${f_e}`);
+        console.log(`e = ${e}`);
+        console.log(`d = ${res.gcd},${res.x},${res.y}`)
+        return {
+          openkey:{
+            key: e,
+            n: n,
+          },
+          closekey:{
+            key: d,
+            n: n,
+          }
+        }
     }
 }
 
@@ -62,8 +101,8 @@ class PrimeNum{
             x = (x * x) % n;
             d <<= 1n;
 
-            if (x === 1n) return false;      
-            if (x === n - 1n) return true;   
+            if (x === 1n) return false;
+            if (x === n - 1n) return true;
         }
         return false;
     }
@@ -94,5 +133,17 @@ class PrimeNum{
         } while (!this.isProbablePrime(candidate));
         return candidate;
     }
-    
+    static generateValueOnInterval(min:number, max:number): number{
+      return Math.floor(Math.random()*(max-min) + min)
+    }
+    static generateFermPrime(max:bigint):bigint{
+      let n = this.generateValueOnInterval(2,8);
+      let num = BigInt(BigInt(2)**BigInt(2**n)+BigInt(1));
+      while (num>=max){
+        n = this.generateValueOnInterval(2,8);
+        num = BigInt(BigInt(2)**BigInt(2**n)+BigInt(1));
+      }
+      return num
+    }
+
 }
