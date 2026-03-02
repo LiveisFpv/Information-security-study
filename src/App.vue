@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
@@ -8,7 +8,8 @@ import { RouterLink, RouterView } from 'vue-router'
       <nav class="nav">
         <RouterLink to="/" class="nav-link">Классические шифры</RouterLink>
         <RouterLink to="/des" class="nav-link">DES (ECB)</RouterLink>
-        <RouterLink to="/rsa" class="nav-link">RSA</RouterLink>
+        <RouterLink to="/rsa" class="nav-link">RSA (шифрование)</RouterLink>
+        <RouterLink to="/signature" class="nav-link">ЭЦП RSA/Эль-Гамаль</RouterLink>
       </nav>
     </header>
     <RouterView />
